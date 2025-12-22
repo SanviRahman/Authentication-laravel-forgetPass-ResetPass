@@ -1,16 +1,21 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
-use Auth;
-use App\Models\Admin;
-use App\Mail\Websitemail;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Mail\Websitemail;
+use App\Models\Admin;
+use Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
+
+    public function dashboard()
+    {
+        return view('admin.dashboard');
+    }
     public function login()
     {
         return view('admin.login');
@@ -19,14 +24,14 @@ class AdminController extends Controller
     public function login_submit(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required | email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
         if (Auth::guard('admin')->attempt($credentials)) {
             return redirect()->route('dashboard');
         } else {
-            return redirect()->back()->with('Error', 'Invalid Credentials');
+            return redirect()->back()->with('error', 'Invalid Credentials');
         }
     }
 
@@ -41,7 +46,6 @@ class AdminController extends Controller
         return view('admin.forget_password');
     }
 
-    // app/Http/Controllers/Admin/AdminController.php
 
     public function forget_password_submit(Request $request)
     {
@@ -63,7 +67,6 @@ class AdminController extends Controller
         $subject    = 'Reset Password';
         $message    = 'Please click the button below to reset your password:';
 
-        
         // ✅ সঠিকভাবে মেইল পাঠানো (লিংকটা তৃতীয় আর্গুমেন্ট হিসেবে পাঠানো হচ্ছে)
         Mail::to($request->email)->send(new Websitemail($subject, $message, $reset_link));
 
@@ -79,8 +82,8 @@ class AdminController extends Controller
     public function reset_password_submit(Request $request, $token, $email)
     {
         $request->validate([
-            'password'              => 'required|min:6|confirmed', 
-            'password_confirmation' => 'required',               
+            'password'              => 'required|min:6|confirmed',
+            'password_confirmation' => 'required',
         ]);
 
         // প্রথমে চেক করো টোকেন এবং ইমেইল ভ্যালিড কিনা
@@ -93,14 +96,9 @@ class AdminController extends Controller
         // শুধুমাত্র ভ্যালিড হলে পাসওয়ার্ড আপডেট করো
         $admin->password = Hash::make($request->password);
         $admin->token    = '';
-        $admin->save(); 
+        $admin->save();
 
         return redirect()->route('admin_login')->with('success', 'Password reset successfully. Please login.');
-    }
-
-    public function dashboard()
-    {
-        return view('admin.dashboard');
     }
 
 }

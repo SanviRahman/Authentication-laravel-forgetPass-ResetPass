@@ -19,7 +19,7 @@
     <!-- New Password -->
     <div>
         <label for="password">New Password</label>
-        <input type="password" name="password" id="password" placeholder="Enter new password" value="{{ old('password') }}">
+        <input type="password" name="password" id="password" placeholder="Enter new password">
         @error('password')
             <p style="color:red">{{ $message }}</p>
         @enderror
@@ -27,7 +27,7 @@
 
     <br>
     
-    <!-- Confirm Password (সঠিক নাম ব্যবহার করো) -->
+    <!-- Confirm Password  -->
     <div>
         <label for="password_confirmation">Confirm Password</label>
         <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm password">

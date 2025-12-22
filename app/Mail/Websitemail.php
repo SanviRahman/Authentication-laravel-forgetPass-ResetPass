@@ -20,7 +20,7 @@ class Websitemail extends Mailable
      */
     public function __construct($subject, $body, $link = null)
     {
-        $this->subject = $subject; // এটা ভুল ছিল: $this->$subject
+        $this->subject = $subject;
         $this->body = $body;
         $this->link = $link;
     }
@@ -31,7 +31,7 @@ class Websitemail extends Mailable
     public function build()
     {
         return $this->subject($this->subject)
-                    ->view('email') // views/email.blade.php ফাইল ব্যবহার করবে
+                    ->view('email') // views/email.blade.php
                     ->with([
                         'subject' => $this->subject,
                         'body' => $this->body,
