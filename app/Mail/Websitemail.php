@@ -1,55 +1,41 @@
 <?php
+// app/Mail/Websitemail.php
 
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class Websitemail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $subject, $body;
+    public $subject;
+    public $body;
+    public $link; // লিংক আলাদা ভেরিয়েবলে রাখো
+
     /**
      * Create a new message instance.
      */
-    public function __construct($subject,$body)
+    public function __construct($subject, $body, $link = null)
     {
-        $this->$subject = $subject;
-        $this->body= $body;
+        $this->subject = $subject; // এটা ভুল ছিল: $this->$subject
+        $this->body = $body;
+        $this->link = $link;
     }
 
     /**
-     * Get the message envelope.
+     * Build the message.
      */
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: $this->$subject,
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'email',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
+        return $this->subject($this->subject)
+                    ->view('email') // views/email.blade.php ফাইল ব্যবহার করবে
+                    ->with([
+                        'subject' => $this->subject,
+                        'body' => $this->body,
+                        'link' => $this->link, // লিংকটা আলাদা ভাবে পাঠাও
+                    ]);
     }
 }

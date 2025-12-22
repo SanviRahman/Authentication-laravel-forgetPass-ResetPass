@@ -14,7 +14,7 @@
     <label for="email">Email</label>
     <input type="email" name="email" placeholder="Enter Email">
     @error('email')
-    <p>This file is required.</p>
+    <p style="color:red">This file is required.</p>
     @enderror
 
     <pre></pre>
