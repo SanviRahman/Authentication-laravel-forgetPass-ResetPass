@@ -7,9 +7,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Auth;
 
 class UserController extends Controller
 {
+    public function dashboard()
+    {
+        return view('user.dashboard');
+    }
+
     public function registration()
     {
         return view('user.registration');
@@ -71,4 +77,94 @@ class UserController extends Controller
     {
         return view('user.login');
     }
+
+    public function login_submit(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::guard('web')->attempt([
+            'email'    => $request->email,
+            'password' => $request->password,
+            'status'   => 1,
+        ])) {
+            $request->session()->regenerate();
+            return redirect()->route('dashboard')->with('success', 'Login successful!');
+        }
+
+        return redirect()->back()
+            ->withInput($request->only('email'))
+            ->with('error', 'Invalid credentials or account is inactive.');
+    }
+
+    public function logout()
+    {
+        Auth::guard('web')->logout();
+        return redirect()->route('login')->with('Logout successful.');
+    }
+
+    public function forget_password()
+    {
+        return view('user.forget_password');
+    }
+
+    public function forget_password_submit(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return redirect()->back()->with('error', 'Email not found.');
+        }
+
+        $token       = hash('sha256', time());
+        $user->token = $token;
+        $user->save();
+
+        $reset_link = route('reset_password', ['token' => $token, 'email' => $request->email]);
+        $subject    = 'Reset Password';
+        $message    = 'Please click the button below to reset your password:';
+
+        // ✅ সঠিকভাবে মেইল পাঠানো (লিংকটা তৃতীয় আর্গুমেন্ট হিসেবে পাঠানো হচ্ছে)
+        Mail::to($request->email)->send(new Websitemail($subject, $message, $reset_link));
+
+        return redirect()->back()->with('success', 'Reset password link has been sent to your email.');
+    }
+
+    public function reset_password($token, $email)
+    {
+        $user = User::where('email', $email)->where('token', $token)->first();
+        if (! $user) {
+            return redirect()->route('login', 'Invalid token or email');
+        }
+        return view('user.reset_password', compact('token', 'email'));
+    }
+
+    public function reset_password_submit(Request $request, $token, $email)
+    {
+        $request->validate([
+            'password'              => 'required|min:6|confirmed',
+            'password_confirmation' => 'required',
+        ]);
+
+        // প্রথমে চেক করো টোকেন এবং ইমেইল ভ্যালিড কিনা
+        $user = User::where('email', $email)->where('token', $token)->first();
+
+        if (! $user) {
+            return redirect()->route('login')->with('error', 'Invalid or expired reset link.');
+        }
+
+        // শুধুমাত্র ভ্যালিড হলে পাসওয়ার্ড আপডেট করো
+        $user->password = Hash::make($request->password);
+        $user->token    = '';
+        $user->update();
+
+        return redirect()->route('login')->with('success', 'Password reset successfully. Please login.');
+    }
+
 }

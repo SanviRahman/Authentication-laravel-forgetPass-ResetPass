@@ -29,7 +29,7 @@ class AdminController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt($credentials)) {
-            return redirect()->route('dashboard');
+            return redirect()->route('admin_dashboard');
         } else {
             return redirect()->back()->with('error', 'Invalid Credentials');
         }
@@ -45,7 +45,6 @@ class AdminController extends Controller
     {
         return view('admin.forget_password');
     }
-
 
     public function forget_password_submit(Request $request)
     {
@@ -76,6 +75,9 @@ class AdminController extends Controller
     public function reset_password($token, $email)
     {
         $admin = Admin::where('email', $email)->where('token', $token)->first();
+        if (! $admin) {
+            return redirect()->route('admin_login', 'Invalid token or email');
+        }
         return view('admin.reset_password', compact('token', 'email'));
     }
 

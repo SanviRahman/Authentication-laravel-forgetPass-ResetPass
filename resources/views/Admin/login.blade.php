@@ -27,6 +27,7 @@
 
     <pre></pre>
     <button type="submit">Login</button>
+    <button><a href="{{ route('home') }}">Home</a></button>
     <div>
         <a href="{{ route('admin_forget_password') }}">Forget Password</a>
     </div>

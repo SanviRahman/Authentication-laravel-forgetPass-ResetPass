@@ -26,8 +26,8 @@ Route::post('/reset-password/{token}/{email}', [UserController::class, 'reset_pa
 
 //Admin
 Route::middleware('admin')->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/logout', [AdminController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin_dashboard');
+    Route::get('/logout', [AdminController::class, 'logout'])->name('admin_logout');
 });
 
 Route::prefix('admin')->group(function () {
