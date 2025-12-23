@@ -1,3 +1,4 @@
+@include('user.top')
 <h1>Admin Reset Password</h1>
 
 @if(session('success'))

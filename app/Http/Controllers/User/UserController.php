@@ -4,10 +4,10 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Mail\Websitemail;
 use App\Models\User;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Auth;
 
 class UserController extends Controller
 {
@@ -167,4 +167,58 @@ class UserController extends Controller
         return redirect()->route('login')->with('success', 'Password reset successfully. Please login.');
     }
 
+    public function profile()
+    {
+        return view('user.profile');
+    }
+
+    public function profile_submit(Request $request)
+    {
+        // Get current user
+        $user = Auth::guard('web')->user();
+
+        $request->validate([
+            'name'  => 'required',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        // Handle Photo Upload
+        if ($request->hasFile('photo')) {
+            $request->validate([
+                'photo' => 'image|mimes:jpeg,png,gif,svg|max:5120',
+            ]);
+
+            $final_name = 'user_' . time() . '.' . $request->photo->extension();
+
+            // Delete old photo if exists
+            if ($user->photo != '' && file_exists(public_path('uploads/' . $user->photo))) {
+                unlink(public_path('uploads/' . $user->photo));
+            }
+
+            $request->photo->move(public_path('uploads'), $final_name);
+            $user->photo = $final_name;
+        }
+
+        // Handle Password Change
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'required|min:6|confirmed',
+            ]);
+            $user->password = Hash::make($request->password);
+        }
+
+        // Update other fields
+        $user->name    = $request->name;
+        $user->email   = $request->email;
+        $user->phone   = $request->phone;
+        $user->address = $request->address;
+        $user->city    = $request->city;
+        $user->country = $request->country;
+        $user->state   = $request->state;
+        $user->zip     = $request->zip;
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Profile updated successfully');
+    }
 }

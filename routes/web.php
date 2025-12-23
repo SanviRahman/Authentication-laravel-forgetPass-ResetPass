@@ -12,11 +12,13 @@ Route::get('/about', [FrontController::class, 'about'])->name('about');
 Route::middleware('user')->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::post('/profile', [UserController::class, 'profile_submit'])->name('profile_submit');
 });
 
 Route::get('/registration', [UserController::class, 'registration'])->name('registration');
-Route::post('/registration',[UserController::class,'registration_submit'])->name('registration_submit');
-Route::get('/registration-verify/{token}/{email}',[UserController::class,'registration_verify'])->name('registration_verify');
+Route::post('/registration', [UserController::class, 'registration_submit'])->name('registration_submit');
+Route::get('/registration-verify/{token}/{email}', [UserController::class, 'registration_verify'])->name('registration_verify');
 Route::get('/login', [UserController::class, 'login'])->name('login');
 Route::post('/login', [UserController::class, 'login_submit'])->name('login_submit');
 Route::get('/forget-password', [UserController::class, 'forget_password'])->name('forget_password');
@@ -28,6 +30,8 @@ Route::post('/reset-password/{token}/{email}', [UserController::class, 'reset_pa
 Route::middleware('admin')->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin_dashboard');
     Route::get('/logout', [AdminController::class, 'logout'])->name('admin_logout');
+    Route::get('/profile', [AdminController::class, 'admin_profile'])->name('admin_profile');
+    Route::post('/profile', [AdminController::class, 'admin_profile_submit'])->name('admin_profile_submit');
 });
 
 Route::prefix('admin')->group(function () {

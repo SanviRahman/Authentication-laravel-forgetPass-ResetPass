@@ -1,3 +1,4 @@
+@include('user.top')
 <h1>Admin Login</h1>
 
 @if(session('success'))

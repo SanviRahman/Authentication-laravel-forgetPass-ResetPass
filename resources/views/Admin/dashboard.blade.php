@@ -1,3 +1,4 @@
+@include('user.top')
 <h1>Admin Dashboard.</h1>
-
-<a href="{{ route('admin_logout') }}">Logout</a>
+ Welcome {{ Auth::guard('admin')->user()->name }} to your dashboard.
+</p>

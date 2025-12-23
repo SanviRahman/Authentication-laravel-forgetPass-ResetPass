@@ -103,4 +103,52 @@ class AdminController extends Controller
         return redirect()->route('admin_login')->with('success', 'Password reset successfully. Please login.');
     }
 
+    public function admin_profile()
+    {
+        return view('admin.profile');
+    }
+
+    public function admin_profile_submit(Request $request)
+    {
+        // Get current admin
+        $admin = Auth::guard('admin')->user();
+
+        $request->validate([
+            'name'  => 'required',
+            'email' => 'required|email|unique:admins,email,' . $admin->id,
+        ]);
+
+        // Handle Photo Upload
+        if ($request->hasFile('photo')) {
+            $request->validate([
+                'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5120', // 5MB max
+            ]);
+
+            $image      = $request->file('photo');
+            $final_name = 'admin_' . time() . '.' . $image->Extension();
+
+            // Delete old photo if exists
+            if ($admin->photo != '' && file_exists(public_path('uploads/' . $admin->photo))) {
+                unlink(public_path('uploads/' . $admin->photo));
+            }
+
+            $image->move(public_path('uploads'), $final_name);
+            $admin->photo = $final_name;
+        }
+
+        // Handle Password C
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'required|min:6|confirmed',
+            ]);
+            $admin->password = Hash::make($request->password); 
+        }
+
+        // Update other fields
+        $admin->name  = $request->name;
+        $admin->email = $request->email;
+        $admin->save();
+
+        return redirect()->back()->with('success', 'Profile updated successfully');
+    }
 }
