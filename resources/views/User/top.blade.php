@@ -9,12 +9,7 @@
     
     @if($admin)
         <a href="{{ route('admin_dashboard') }}">Dashboard</a> |
-        <form action="{{ route('admin_logout') }}" style="display: inline;">
-            @csrf
-            <button type="submit" style="background: none; border: none; cursor: pointer;">
-                Admin Logout
-            </button>
-        </form>
+        <a href="{{ route('admin_logout') }}">Logout</a>
     @endif
     
     @if(!$admin && !$user)
@@ -22,12 +17,8 @@
     @endif
     
     @if($user)
-        <form action="{{ route('logout') }}" style="display: inline;">
-            @csrf
-            <button type="submit" style="background: none; border: none; cursor: pointer;">
-                Logout
-            </button>
-        </form>
+        <a href="{{ route('dashboard') }}">Dashboard</a> |
+        <a href="{{ route('logout') }}">Logout</a>
     @else
         <a href="{{ route('registration') }}">User Register</a> |
         <a href="{{ route('login') }}">User Login</a>
