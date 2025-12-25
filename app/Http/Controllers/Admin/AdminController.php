@@ -114,7 +114,7 @@ class AdminController extends Controller
         $admin = Auth::guard('admin')->user();
 
         $request->validate([
-            'name'  => 'required',
+            'name'  => 'required',      
             'email' => 'required|email|unique:admins,email,' . $admin->id,
         ]);
 
